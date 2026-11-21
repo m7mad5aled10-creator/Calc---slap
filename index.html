@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="منسوب البلاطة">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>حاسبة قراءة القامة لسمك البلاطة</title>
+<style>
+  :root{
+    --deep: #0f3d2e;
+    --field: #14532d;
+    --lime: #7bd389;
+    --paper: #f4f7f2;
+    --card: #ffffff;
+    --ink: #16241d;
+    --sub: #5b6b60;
+    --line: #dfe8de;
+    --warn: #b5541a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--paper);
+    font-family:'Segoe UI',Tahoma,'Noto Naskh Arabic','Noto Sans Arabic',system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .band{
+    background: linear-gradient(135deg, var(--deep), var(--field) 60%, #1c6b3f);
+    color:#fff;
+    padding:28px 20px 60px;
+    position:relative;
+    overflow:hidden;
+  }
+  .band::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 2px, transparent 2px 34px);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-size:13px;
+    letter-spacing:.5px;
+    color:var(--lime);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0;
+    font-size:24px;
+    font-weight:800;
+    line-height:1.4;
+  }
+  .band p{
+    margin:8px 0 0;
+    color:#dcece0;
+    font-size:14px;
+    max-width:520px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:-36px auto 0;
+    padding:0 16px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(15,61,46,.12);
+    padding:20px;
+    margin-bottom:16px;
+    border:1px solid var(--line);
+  }
+
+  .card h2{
+    font-size:15px;
+    margin:0 0 14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--field);
+  }
+  .card h2 .dot{
+    width:8px;height:8px;border-radius:50%;background:var(--lime);
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    color:var(--sub);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  input[type=number]{
+    width:100%;
+    font-family:ui-monospace,'SFMono-Regular',Consolas,'Courier New',monospace;
+    font-size:20px;
+    font-weight:700;
+    padding:12px 14px;
+    border-radius:10px;
+    border:2px solid var(--line);
+    background:#fbfdfa;
+    color:var(--ink);
+    direction:ltr;
+    text-align:left;
+  }
+  input[type=number]:focus{
+    outline:none;
+    border-color: var(--lime);
+    background:#fff;
+  }
+
+  .toggle-row{
+    display:flex;
+    gap:8px;
+    background:#eef3ec;
+    padding:4px;
+    border-radius:10px;
+  }
+  .toggle-row button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:10px 8px;
+    border-radius:8px;
+    font-family:inherit;
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--sub);
+    cursor:pointer;
+    transition:.15s;
+    line-height:1.4;
+  }
+  .toggle-row button.active{
+    background:var(--field);
+    color:#fff;
+    box-shadow:0 4px 10px rgba(20,83,45,.25);
+  }
+
+  .btn-calc{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background: linear-gradient(135deg, var(--field), #1c6b3f);
+    color:#fff;
+    font-family:inherit;
+    font-weight:800;
+    font-size:16px;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(20,83,45,.3);
+  }
+  .btn-calc:active{transform:translateY(1px);}
+
+  .hi-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background: #eef7ee;
+    border:1px dashed #9fcf9f;
+    border-radius:10px;
+    padding:12px 14px;
+    margin-top:14px;
+  }
+  .hi-box .lbl{font-size:13px;color:var(--field);font-weight:700;}
+  .hi-box .val{font-family:ui-monospace,'SFMono-Regular',Consolas,'Courier New',monospace;font-weight:700;font-size:18px;color:var(--deep);direction:ltr;}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  thead th{
+    background:var(--field);
+    color:#fff;
+    padding:10px 8px;
+    font-size:12.5px;
+    font-weight:700;
+    position:sticky;
+    top:0;
+  }
+  thead th:first-child{border-radius:8px 0 0 0;}
+  thead th:last-child{border-radius:0 8px 0 0;}
+  tbody td{
+    padding:10px 8px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    font-family:ui-monospace,'SFMono-Regular',Consolas,'Courier New',monospace;
+    direction:ltr;
+  }
+  tbody td:first-child{
+    font-family:inherit;
+    direction:rtl;
+    font-weight:700;
+    color:var(--field);
+    background:#f6faf5;
+  }
+  tbody tr:nth-child(even) td{background:#fafcf9;}
+  tbody tr:nth-child(even) td:first-child{background:#f2f8f1;}
+  tbody tr:hover td{background:#eef7ee;}
+
+  .empty{
+    text-align:center;
+    padding:30px 10px;
+    color:var(--sub);
+    font-size:14px;
+  }
+  .empty svg{margin-bottom:10px;opacity:.5;}
+
+  .note{
+    font-size:12.5px;
+    color:var(--sub);
+    background:#fff7ee;
+    border:1px solid #f1ddb8;
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:14px;
+    line-height:1.9;
+  }
+  .note b{color:var(--warn);}
+
+  .scroll-hint{
+    font-size:11px;
+    color:var(--sub);
+    text-align:center;
+    margin-top:8px;
+  }
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:var(--sub);
+    margin-top:20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="band">
+  <div class="eyebrow">أداة موقع &mdash; ميزانية وتسوية</div>
+  <h1>حاسبة قراءة القامة<br>لسُمك البلاطة</h1>
+  <p>دخّل منسوب الشرب، وقراءة القامة عليه، ومنسوب السقف المطلوب، وهتطلعلك القراءة المفروض تشوفها على القامة لكل سُمك بلاطة من 10 لـ 40 سم.</p>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2><span class="dot"></span> بيانات الميزانية</h2>
+    <div class="field">
+      <label>منسوب الشرب (م)</label>
+      <input type="number" step="0.001" id="bm" placeholder="مثال: 25.500">
+    </div>
+    <div class="field">
+      <label>قراءة القامة على الشرب (م)</label>
+      <input type="number" step="0.001" id="staff" placeholder="مثال: 1.250">
+    </div>
+    <div class="field">
+      <label>منسوب السقف المطلوب (م)</label>
+      <input type="number" step="0.001" id="roof" placeholder="مثال: 28.900">
+    </div>
+
+    <div class="field">
+      <label>طريقة حساب سُمك البلاطة</label>
+      <div class="toggle-row">
+        <button type="button" id="btnMinus" class="active">منسوب السقف − السُمك<br><span style="font-weight:400;opacity:.85">(أسفل البلاطة)</span></button>
+        <button type="button" id="btnPlus">منسوب السقف + السُمك<br><span style="font-weight:400;opacity:.85">(أعلى البلاطة)</span></button>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <button class="btn-calc" id="calcBtn">احسب القراءات</button>
+    </div>
+
+    <div class="hi-box" id="hiBox" style="display:none;">
+      <span class="lbl">منسوب خط النظر (HI)</span>
+      <span class="val" id="hiVal">—</span>
+    </div>
+  </div>
+
+  <div class="card" id="resultsCard">
+    <h2><span class="dot"></span> جدول القراءات (10 &rarr; 40 سم)</h2>
+    <div id="tableHolder">
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5b6b60" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <div>دخّل البيانات فوق واضغط "احسب القراءات" عشان يظهر الجدول</div>
+      </div>
+    </div>
+    <div class="note" id="warnNote" style="display:none;"></div>
+  </div>
+
+  <footer>م/ محمد خالد</footer>
+</div>
+
+<script>
+  var mode = 'minus'; // 'minus' = روف - سمك (أسفل البلاطة) | 'plus' = روف + سمك (أعلى البلاطة)
+
+  document.getElementById('btnMinus').addEventListener('click', function(){
+    mode = 'minus';
+    document.getElementById('btnMinus').classList.add('active');
+    document.getElementById('btnPlus').classList.remove('active');
+  });
+  document.getElementById('btnPlus').addEventListener('click', function(){
+    mode = 'plus';
+    document.getElementById('btnPlus').classList.add('active');
+    document.getElementById('btnMinus').classList.remove('active');
+  });
+
+  function fmt(n){
+    return n.toFixed(3);
+  }
+
+  document.getElementById('calcBtn').addEventListener('click', function(){
+    var bmEl = document.getElementById('bm');
+    var staffEl = document.getElementById('staff');
+    var roofEl = document.getElementById('roof');
+
+    var bm = parseFloat(bmEl.value);
+    var staff = parseFloat(staffEl.value);
+    var roof = parseFloat(roofEl.value);
+
+    var holder = document.getElementById('tableHolder');
+    var warnNote = document.getElementById('warnNote');
+    var hiBox = document.getElementById('hiBox');
+
+    if (isNaN(bm) || isNaN(staff) || isNaN(roof)) {
+      holder.innerHTML = '<div class="empty" style="color:#b5541a;">من فضلك دخّل الثلاث قيم (منسوب الشرب، قراءة القامة، منسوب السقف) بشكل صحيح</div>';
+      hiBox.style.display = 'none';
+      warnNote.style.display = 'none';
+      return;
+    }
+
+    var hi = bm + staff;
+    hiBox.style.display = 'flex';
+    document.getElementById('hiVal').textContent = fmt(hi) + ' م';
+
+    var rows = '';
+    var negativeCount = 0;
+
+    for (var t = 10; t <= 40; t += 2) {
+      var tM = t / 100;
+      var target = (mode === 'minus') ? (roof - tM) : (roof + tM);
+      var reading = hi - target;
+      if (reading < 0) negativeCount++;
+
+      rows += '<tr>' +
+        '<td>' + t + ' سم</td>' +
+        '<td>' + fmt(target) + '</td>' +
+        '<td style="font-weight:700;color:#0f3d2e;">' + fmt(reading) + '</td>' +
+        '</tr>';
+    }
+
+    var tableHTML =
+      '<div style="overflow-x:auto;">' +
+      '<table>' +
+      '<thead><tr>' +
+      '<th>رقة البلاطة</th>' +
+      '<th>المنسوب المستهدف (م)</th>' +
+      '<th>القراءة المطلوبة (م)</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+      '</div>' +
+      '<div class="scroll-hint">اسحب يمين/شمال لو الجدول أعرض من الشاشة</div>';
+
+    holder.innerHTML = tableHTML;
+
+    if (negativeCount > 0) {
+      warnNote.style.display = 'block';
+      warnNote.innerHTML = '<b>تنبيه:</b> فيه ' + negativeCount + ' قراءة/قراءات طلعت بالسالب، يعني المنسوب المستهدف أعلى من منسوب خط النظر (HI) — راجع القيم المدخلة أو استخدم جهاز في نقطة تانية.';
+    } else {
+      warnNote.style.display = 'none';
+    }
+  });
+
+  // حفظ آخر قيم مدخلة على الجهاز
+  (function(){
+    var ids=['bm','staff','roof'];
+    try{
+      ids.forEach(function(id){
+        var v=localStorage.getItem('slab_'+id);
+        if(v!==null) document.getElementById(id).value=v;
+        document.getElementById(id).addEventListener('input',function(e){
+          try{localStorage.setItem('slab_'+id,e.target.value);}catch(_){}
+        });
+      });
+      var m=localStorage.getItem('slab_mode');
+      if(m==='plus') document.getElementById('btnPlus').click();
+      ['btnMinus','btnPlus'].forEach(function(b){
+        document.getElementById(b).addEventListener('click',function(){
+          try{localStorage.setItem('slab_mode',mode);}catch(_){}
+        });
+      });
+    }catch(_){}
+  })();
+
+  // تسجيل الـ Service Worker للعمل بدون إنترنت
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+</script>
+
+</body>
+</html>
