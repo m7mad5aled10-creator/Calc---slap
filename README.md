@@ -4,7 +4,7 @@
 
 ## الرفع على GitHub Pages
 1. أنشئ Repository جديد (مثلاً `slab-calc`).
-2. ارفع كل محتويات هذا المجلد (index.html, manifest.json, sw.js, مجلد icons).
+2. ارفع كل محتويات هذا المجلد (index.html, manifest.json, sw.js, الأيقونات).
 3. من Settings ← Pages ← Source: `Deploy from a branch` ← Branch: `main` / `(root)` ← Save.
 4. افتح الرابط: `https://USERNAME.github.io/slab-calc/`
 
